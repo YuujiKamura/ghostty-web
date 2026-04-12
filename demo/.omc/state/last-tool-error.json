@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"C:\\\\Users\\\\yuuji\\\\deckpilot\\\\ipc.go\"}",
+  "error": "File does not exist. Note: your current working directory is C:\\Users\\yuuji\\ghostty-web\\demo.",
+  "timestamp": "2026-04-07T12:11:42.153Z",
+  "retry_count": 2
+}
