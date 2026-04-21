@@ -2990,3 +2990,89 @@ describe('Synchronous open()', () => {
     term.dispose();
   });
 });
+
+// ============================================================================
+// IME Preedit API
+// ============================================================================
+
+describe('Terminal – preedit overlay API', () => {
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    if (typeof document !== 'undefined') {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+    }
+  });
+
+  afterEach(() => {
+    if (container?.parentNode) {
+      container.parentNode.removeChild(container);
+      container = null!;
+    }
+  });
+
+  test('setPreedit and clearPreedit exist as functions', async () => {
+    const term = await createIsolatedTerminal();
+    expect(typeof term.setPreedit).toBe('function');
+    expect(typeof term.clearPreedit).toBe('function');
+  });
+
+  test('setPreedit and clearPreedit are no-ops before open()', async () => {
+    const term = await createIsolatedTerminal();
+    // Must not throw before terminal is opened
+    expect(() => term.setPreedit('あ')).not.toThrow();
+    expect(() => term.clearPreedit()).not.toThrow();
+  });
+
+  test('open() attaches overlay canvas to parent', async () => {
+    if (!container) return;
+
+    const term = await createIsolatedTerminal();
+    term.open(container);
+
+    const overlays = container.querySelectorAll('canvas[aria-hidden="true"]');
+    expect(overlays.length).toBe(1);
+
+    term.dispose();
+  });
+
+  test('overlay canvas is removed on dispose()', async () => {
+    if (!container) return;
+
+    const term = await createIsolatedTerminal();
+    term.open(container);
+
+    term.dispose();
+
+    const overlays = container.querySelectorAll('canvas[aria-hidden="true"]');
+    expect(overlays.length).toBe(0);
+  });
+
+  test('setPreedit does not throw after open()', async () => {
+    if (!container) return;
+
+    const term = await createIsolatedTerminal();
+    term.open(container);
+
+    expect(() => term.setPreedit('abc')).not.toThrow();
+    expect(() => term.clearPreedit()).not.toThrow();
+
+    term.dispose();
+  });
+
+  test('overlay canvas has correct CSS positioning attributes', async () => {
+    if (!container) return;
+
+    const term = await createIsolatedTerminal();
+    term.open(container);
+
+    const overlay = container.querySelector('canvas[aria-hidden="true"]') as HTMLCanvasElement;
+    expect(overlay).not.toBeNull();
+    expect(overlay.style.position).toBe('absolute');
+    expect(overlay.style.pointerEvents).toBe('none');
+    expect(overlay.style.zIndex).toBe('1');
+
+    term.dispose();
+  });
+});
